@@ -1,0 +1,108 @@
+
+// Trade Assistant Panel Code - Developed by Forex Robot Easy Team (forexroboteasy.com)
+
+// Include necessary libraries and classes
+#include <Trade\Trade.mqh>
+#include <Controls\Button.mqh>
+#include <Controls\Edit.mqh>
+
+// Define global variables
+CTrade trade;
+CButton buyButton, sellButton, buyStopButton, buyLimitButton, sellStopButton, sellLimitButton;
+CEdit ticketEdit;
+
+// Initialize the Trade Assistant Panel
+void OnInit()
+{
+    // Create the buy button
+    buyButton.Create(0, 'Buy', 0, 0, 100, 50);
+    buyButton.SetOnClick(OnBuyButtonClick);
+    
+    // Create the sell button
+    sellButton.Create(0, 'Sell', 0, 60, 100, 50);
+    sellButton.SetOnClick(OnSellButtonClick);
+    
+    // Create the buy stop button
+    buyStopButton.Create(0, 'Buy Stop', 0, 120, 100, 50);
+    buyStopButton.SetOnClick(OnBuyStopButtonClick);
+    
+    // Create the buy limit button
+    buyLimitButton.Create(0, 'Buy Limit', 0, 180, 100, 50);
+    buyLimitButton.SetOnClick(OnBuyLimitButtonClick);
+    
+    // Create the sell stop button
+    sellStopButton.Create(0, 'Sell Stop', 0, 240, 100, 50);
+    sellStopButton.SetOnClick(OnSellStopButtonClick);
+    
+    // Create the sell limit button
+    sellLimitButton.Create(0, 'Sell Limit', 0, 300, 100, 50);
+    sellLimitButton.SetOnClick(OnSellLimitButtonClick);
+    
+    // Create the ticket edit field
+    ticketEdit.Create(0, '', 0, 360, 100, 30);
+}
+
+// Handle buy button click event
+void OnBuyButtonClick()
+{
+    double price = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+    trade.Buy(Symbol(), 0.01, price, 0, 0, 0, 0, 'Buy Order');
+}
+
+// Handle sell button click event
+void OnSellButtonClick()
+{
+    double price = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+    trade.Sell(Symbol(), 0.01, price, 0, 0, 0, 0, 'Sell Order');
+}
+
+// Handle buy stop button click event
+void OnBuyStopButtonClick()
+{
+    double price = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+    double stopPrice = price + 10 * Point();
+    trade.BuyStop(Symbol(), 0.01, price, stopPrice, 0, 0, 0, 'Buy Stop Order');
+}
+
+// Handle buy limit button click event
+void OnBuyLimitButtonClick()
+{
+    double price = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+    double limitPrice = price - 10 * Point();
+    trade.BuyLimit(Symbol(), 0.01, price, limitPrice, 0, 0, 0, 'Buy Limit Order');
+}
+
+// Handle sell stop button click event
+void OnSellStopButtonClick()
+{
+    double price = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+    double stopPrice = price - 10 * Point();
+    trade.SellStop(Symbol(), 0.01, price, stopPrice, 0, 0, 0, 'Sell Stop Order');
+}
+
+// Handle sell limit button click event
+void OnSellLimitButtonClick()
+{
+    double price = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+    double limitPrice = price + 10 * Point();
+    trade.SellLimit(Symbol(), 0.01, price, limitPrice, 0, 0, 0, 'Sell Limit Order');
+}
+
+// Handle tick event
+void OnTick()
+{
+    // Update order information
+    uint ticket = StringToInteger(ticketEdit.Text());
+    if (ticket != 0)
+    {
+        double price = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+        trade.ModifyPosition(ticket, price, 0);
+    }
+}
+
+// Handle deinitialization event
+void OnDeinit(const int reason)
+{
+    // Close all open positions
+    trade.CloseAll();
+}
